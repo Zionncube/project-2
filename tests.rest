@@ -1,0 +1,51 @@
+### Get all contacts
+GET http://localhost:8080/api/contacts
+Accept: application/json
+
+###
+
+### Create contact
+POST http://localhost:8080/api/contacts
+Content-Type: application/json
+
+{
+  "firstName":"Happiness",
+  "lastName":"Ncube",
+  "email":"happy@example.com",
+  "favoriteColor":"Blue",
+  "birthday":"2000-01-01"
+}
+
+###
+
+### Update contact (replace <id>)
+PUT http://localhost:8080/api/contacts/<id>
+Content-Type: application/json
+
+{
+  "favoriteColor":"Green"
+}
+
+###
+
+### Delete contact
+DELETE http://localhost:8080/api/contacts/<id>
+
+###
+
+### Get all notes
+GET http://localhost:8080/api/notes
+
+### Create note
+POST http://localhost:8080/api/notes
+Content-Type: application/json
+
+{
+  "title":"Project Plan",
+  "content":"Make API for W03",
+  "author":"You",
+  "tags":["project","w03"],
+  "isImportant":true,
+  "dueDate":"2025-12-31",
+  "priority":"high"
+}
