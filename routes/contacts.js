@@ -46,6 +46,4 @@ router.put('/:id',
 
 // Delete a contact by ID
 router.delete('/:id', [param('id').isMongoId()], validate, ctrl.remove);
-
-// Export the router
 module.exports = router;

@@ -1,68 +1,91 @@
 // server.js
-// Main server file
-// Load environment variables from .env file
-require('dotenv').config();// Load .env
-// Import dependencies
-//
+require('dotenv').config(); // Load .env first
+
 const express = require('express');
-// Mongoose for MongoDB
 const mongoose = require('mongoose');
-// Swagger UI for API documentation
+const MongoStore = require('connect-mongo');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const passport = require('passport');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const { Strategy: GitHubStrategy } = require('passport-github2');
 const swaggerUi = require('swagger-ui-express');
-// Import custom modules
+
 const swaggerSpec = require('./swagger');
-// Routes
-//contacts routes
-const contactsRoutes = require('./routes/contacts');
-//notes routes
-const notesRoutes = require('./routes/notes');
-// Error handler middleware
 const errorHandler = require('./middleware/errorHandler');
 
-// Initialize Express app
-const app = express();
-// Middleware to parse JSON request bodies
-app.use(express.json());
+// API routes
+const contactsRoutes = require('./routes/contacts');
+const notesRoutes = require('./routes/notes');
+const authRoutes = require('./routes/auth');
 
-// Swagger UI
-// Serve Swagger docs at /api-docs
+require('./config/passport')(passport); // your custom passport config
+
+const app = express();
+
+// ---------- MIDDLEWARE ----------
+app.use(express.json());
+app.use(bodyParser.json()); // if you want body-parser explicitly
+app.use(cookieParser());
+app.use(cors({ origin: '*', methods: 'GET,HEAD,PUT,PATCH,POST,DELETE' }));
+
+// Sessions (store sessions in Mongo)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'keyboard cat',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// ---------- Swagger Docs ----------
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Routes
-// Use the imported routes for contacts and notes
+// ---------- ROUTES ----------
+app.get('/', (req, res) => res.json({ ok: true }));
+app.use('/auth', authRoutes);
 app.use('/api/contacts', contactsRoutes);
 app.use('/api/notes', notesRoutes);
 
-// health
-// Simple health check endpoint
-app.get('/', (req, res) => res.json({ ok:true }));
+// ---------- GitHub OAuth Strategy ----------
+passport.use(new GitHubStrategy(
+  {
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: process.env.GITHUB_CALLBACK_URL
+  },
+  (accessToken, refreshToken, profile, done) => {
+    // TODO: Find or create user in database
+    // For now just return the GitHub profile
+    return done(null, profile);
+  }
+));
 
-// Error handler (last middleware)
+// ---------- ERROR HANDLER ----------
 app.use(errorHandler);
 
-// Connect & start
-// Connect to MongoDB and start the server
+// ---------- START SERVER ----------
 const MONGO_URI = process.env.MONGO_URI;
-// Ensure MONGO_URI is set
-if(!MONGO_URI) {
-    // Log error and exit if MONGO_URI is not set
-  console.error('MONGO_URI not set. Create .env from .env.example');
-  // Create .env file from .env.example
+if (!MONGO_URI) {
+  console.error('❌ MONGO_URI not set. Create .env from .env.example');
   process.exit(1);
 }
-// Connect to MongoDB
+
 mongoose.connect(MONGO_URI)
-// Start server after successful DB connection
   .then(() => {
-    // Start the server
     const port = process.env.PORT || 8080;
-    // Listen on the specified port
-    app.listen(port, () => console.log(`Server running on port ${port}`));
+    app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
   })
-// Handle connection errors
   .catch(err => {
-    // Log connection error and exit
-    console.error('Mongo connect error', err);
-    // Exit the process with failure
+    console.error('❌ MongoDB connection error:', err);
     process.exit(1);
   });
+// ---------- GRACEFUL SHUTDOWN ----------
