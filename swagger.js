@@ -17,7 +17,18 @@ const options = {
     servers: [
         // Production server
       { url: process.env.RENDER_URL || `http://localhost:${process.env.PORT || 8080}` }
-    ]
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT', // <-- added bearer format
+        },
+      },
+    },
+    // Optional: make security global (lock icon for all endpoints)
+    // security: [{ bearerAuth: [] }],
   },
     // Paths to the API docs
  apis: ['./controllers/*.js'], // you can also include './server.js' comments
@@ -25,3 +36,4 @@ const options = {
 
 // Initialize swagger-jsdoc
 module.exports = swaggerJsdoc(options);
+
