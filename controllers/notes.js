@@ -11,6 +11,11 @@ const Note = require('../models/note');
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Note:
  *       type: object
@@ -59,6 +64,8 @@ const Note = require('../models/note');
  *   get:
  *     summary: Get all notes
  *     tags: [Notes]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of notes
@@ -93,6 +100,8 @@ exports.getAll = async (req, res, next) => {
  *   get:
  *     summary: Get a note by ID
  *     tags: [Notes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -132,6 +141,8 @@ exports.getOne = async (req, res, next) => {
  *   post:
  *     summary: Create a new note
  *     tags: [Notes]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -173,6 +184,8 @@ exports.create = async (req, res, next) => {
  *   put:
  *     summary: Update an existing note
  *     tags: [Notes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -214,6 +227,8 @@ exports.update = async (req, res, next) => {
  *   delete:
  *     summary: Delete a note
  *     tags: [Notes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

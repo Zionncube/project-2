@@ -11,6 +11,11 @@ const Contact = require('../models/contact');
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Contact:
  *       type: object
@@ -51,6 +56,8 @@ const Contact = require('../models/contact');
  *   get:
  *     summary: Get all contacts
  *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of contacts
@@ -85,6 +92,8 @@ exports.getAll = async (req, res, next) => {
  *   get:
  *     summary: Get a contact by ID
  *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -124,6 +133,8 @@ exports.getOne = async (req, res, next) => {
  *   post:
  *     summary: Create a new contact
  *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -165,6 +176,8 @@ exports.create = async (req, res, next) => {
  *   put:
  *     summary: Update an existing contact
  *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -206,6 +219,8 @@ exports.update = async (req, res, next) => {
  *   delete:
  *     summary: Delete a contact
  *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -228,4 +243,3 @@ exports.remove = async (req, res, next) => {
     next(err);
   }
 };
-
