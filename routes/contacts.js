@@ -7,6 +7,11 @@ const { body, param } = require('express-validator');
 const ctrl = require('../controllers/contacts');
 // Import the request validation middleware
 const validate = require('../middleware/validateRequest');
+// Import JWT verification middleware
+const verifyToken = require('../middleware/verifyToken');
+
+// Apply verifyToken globally to all routes in this router
+router.use(verifyToken);
 
 // Define routes with validation and controller handlers
 router.get('/', ctrl.getAll);
@@ -14,12 +19,8 @@ router.get('/', ctrl.getAll);
 router.get('/:id', [param('id').isMongoId()], validate, ctrl.getOne);
 
 // Create a new contact
-// Update an existing contact
-// Delete a contact
-
-// Validation rules for creating and updating contacts
-router.post('/',
-    // Validation rules
+router.post(
+  '/',
   [
     body('firstName').isString().notEmpty(),
     body('lastName').isString().notEmpty(),
@@ -31,10 +32,9 @@ router.post('/',
   ctrl.create
 );
 
-
 // Validation rules for updating a contact
-router.put('/:id',
-    // Validation rules
+router.put(
+  '/:id',
   [
     param('id').isMongoId(),
     body('email').optional().isEmail(),
@@ -46,4 +46,5 @@ router.put('/:id',
 
 // Delete a contact by ID
 router.delete('/:id', [param('id').isMongoId()], validate, ctrl.remove);
+
 module.exports = router;

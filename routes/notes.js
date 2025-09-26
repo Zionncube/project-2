@@ -7,6 +7,11 @@ const { body, param } = require('express-validator');
 const ctrl = require('../controllers/notes');
 // Import the request validation middleware
 const validate = require('../middleware/validateRequest');
+// Import JWT verification middleware
+const verifyToken = require('../middleware/verifyToken');
+
+// Apply verifyToken globally to all routes in this router
+router.use(verifyToken);
 
 // Define routes with validation and controller handlers
 router.get('/', ctrl.getAll);
@@ -14,10 +19,8 @@ router.get('/', ctrl.getAll);
 router.get('/:id', [param('id').isMongoId()], validate, ctrl.getOne);
 
 // Create a new note
-// Update an existing note
-// Delete a note
-router.post('/',
-    // Validation rules
+router.post(
+  '/',
   [
     body('title').isString().notEmpty(),
     body('content').isString().notEmpty(),
@@ -32,8 +35,8 @@ router.post('/',
 );
 
 // Validation rules for updating a note
-router.put('/:id',
-    // Validation rules
+router.put(
+  '/:id',
   [
     param('id').isMongoId(),
     body('dueDate').optional().isISO8601(),
